@@ -26,6 +26,10 @@ ENV PATH="/opt/venv/bin:$PATH"
 WORKDIR /app/gsuid_core
 RUN uv sync && uv run python -m ensurepip
 
+# 清理不需要的文件
+RUN find /opt/venv -type d -name '__pycache__' -exec rm -rf {} + && \
+    find /opt/venv -type f -name '*.pyc' -delete
+
 # 最终阶段
 FROM python:3.12-alpine
 
@@ -37,12 +41,9 @@ COPY --from=builder /opt/venv /opt/venv \
 ENV PATH="/opt/venv/bin:$PATH"
 WORKDIR /app/gsuid_core
 
-# 合并所有安装和清理操作为一个RUN指令
+# 合并所有安装操作为一个RUN指令
 RUN apk add --no-cache git && \
-    pip install --no-cache-dir uv && \
-    rm -rf /var/cache/apk/* && \
-    find /opt/venv -type d -name '__pycache__' -exec rm -rf {} + && \
-    find /opt/venv -type f -name '*.pyc' -delete
+    pip install --no-cache-dir uv
 
 # 设置容器启动命令
 CMD ["uv", "run", "core"]
