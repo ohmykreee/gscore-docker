@@ -4,7 +4,10 @@ FROM python:3.12-alpine as builder
 
 # 安装构建依赖和git
 RUN apk add --no-cache \
-    git
+    git \
+    build-base \
+    libffi-dev \
+    openssl-dev
 
 # 安装uv到系统Python
 RUN pip install --no-cache-dir uv
